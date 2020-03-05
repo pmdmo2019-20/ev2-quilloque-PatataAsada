@@ -3,6 +3,7 @@ package es.iessaladillo.pedrojoya.quilloque.ui.recent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -53,11 +54,14 @@ class RecentFragmentAdapter: ListAdapter<CallWithContact, RecentFragmentAdapter.
         }
 
         fun bind(callWithContact: CallWithContact) {
-            lblName.text = callWithContact.contactName
+            lblCreateContact.isVisible = callWithContact.contactName.isNullOrBlank()
+            lblPhoneNumber.isVisible = !callWithContact.contactName.isNullOrBlank()
+            lblPhoneNumber.text = callWithContact.phoneNumber
+            lblName.text = if(callWithContact.contactName.isNullOrBlank())callWithContact.phoneNumber else callWithContact.contactName!!
             lblTime.text = callWithContact.time
             lblDate.text = callWithContact.date
             imgCallType.setImageResource(getCallTypeIcon(callWithContact.type!!))
-            imgAvatar.setImageDrawable(createAvatarDrawable(callWithContact.contactName!!))
+            imgAvatar.setImageDrawable(createAvatarDrawable(if(callWithContact.contactName.isNullOrBlank())callWithContact.phoneNumber else callWithContact.contactName!!))
         }
 
     }

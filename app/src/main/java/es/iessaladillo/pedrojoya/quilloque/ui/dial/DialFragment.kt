@@ -1,5 +1,6 @@
 package es.iessaladillo.pedrojoya.quilloque.ui.dial
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -17,15 +18,17 @@ import androidx.recyclerview.widget.RecyclerView
 import es.iessaladillo.pedrojoya.quilloque.MainViewModel
 import es.iessaladillo.pedrojoya.quilloque.R
 import es.iessaladillo.pedrojoya.quilloque.data.CALL_TYPE_MADE
+import es.iessaladillo.pedrojoya.quilloque.data.CALL_TYPE_VIDEO
 import es.iessaladillo.pedrojoya.quilloque.data.model.Call
 import es.iessaladillo.pedrojoya.quilloque.data.model.CallWithContact
+import es.iessaladillo.pedrojoya.quilloque.utils.makeToast
 import kotlinx.android.synthetic.main.dial_fragment.*
 import kotlinx.android.synthetic.main.main_activity.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class DialFragment : Fragment() {
-    private val navCtrl:NavController by lazy {
+    private val navCtrl: NavController by lazy {
         findNavController()
     }
 
@@ -37,7 +40,7 @@ class DialFragment : Fragment() {
         lblNumber.text = phoneNumber
     }
 
-    lateinit var viewModel:MainViewModel
+    lateinit var viewModel: MainViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,6 +57,7 @@ class DialFragment : Fragment() {
         setupButtons()
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun setupButtons() {
         lblCreateContact.setOnClickListener { navigateToCreateContact() }
         lblOne.setOnClickListener { addText("1") }
@@ -68,19 +72,54 @@ class DialFragment : Fragment() {
         lblAstherisc.setOnClickListener { addText("*") }
         lblPound.setOnClickListener { addText("#") }
 
-        fabCall.setOnClickListener { if(lblNumber.text.isNotEmpty()) viewModel.createCall(Call(0,lblNumber.text.toString(),
-            CALL_TYPE_MADE,SimpleDateFormat("HH:mm").format(
-                Date()),SimpleDateFormat("yyyy/MM/dd").format(
-                Date())))}
+        imgBackspace.setOnClickListener { deleteOne() }
+
+        imgVideo.setOnClickListener {
+            if (lblNumber.text.isNotEmpty()) {
+                viewModel.createCall(
+                    Call(
+                        0, lblNumber.text.toString(),
+                        CALL_TYPE_VIDEO, SimpleDateFormat("HH:mm").format(
+                            Date()
+                        ), SimpleDateFormat("yyyy/MM/dd").format(
+                            Date()
+                        )
+                    )
+                )
+                makeToast(String.format("Videollamada a %s",lblNumber.text),requireContext())
+            }
+        }
+
+        fabCall.setOnClickListener {
+            if (lblNumber.text.isNotEmpty()) {
+                viewModel.createCall(
+                    Call(
+                        0, lblNumber.text.toString(),
+                        CALL_TYPE_MADE, SimpleDateFormat("HH:mm").format(
+                            Date()
+                        ), SimpleDateFormat("yyyy/MM/dd").format(
+                            Date()
+                        )
+                    )
+                )
+                makeToast(String.format("Se ha llamado a %s",lblNumber.text),requireContext())
+            }
+        }
 
     }
 
+    private fun deleteOne() {
+        if (lblNumber.text.isNotEmpty()) lblNumber.text =
+            lblNumber.text.subSequence(0, lblNumber.text.length - 1)
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun addText(text: String) {
         lblNumber.text = lblNumber.text.toString() + text
     }
 
     private fun navigateToCreateContact() {
-        viewModel.arrayBackstackTitles[viewModel.arrayBackstackTitles.size] = toolbar.title.toString()
+        viewModel.arrayBackstackTitles.add(getString(R.string.dial_title))
         viewModel.contactCreatorHelper = lblNumber.text.toString()
         viewModel.changeToolbarTitle(getString(R.string.contact_creation_title))
         navCtrl.navigate(R.id.action_dialFragment_to_contactCreationFragment)
@@ -89,18 +128,20 @@ class DialFragment : Fragment() {
     private fun setupRecyclerView() {
         lstSuggestions.run {
             setHasFixedSize(true)
-            layoutManager = GridLayoutManager(requireContext(),1)
+            layoutManager = GridLayoutManager(requireContext(), 1)
             itemAnimator = DefaultItemAnimator()
             addItemDecoration(
-                DividerItemDecoration(requireContext(),
-                    RecyclerView.VERTICAL)
+                DividerItemDecoration(
+                    requireContext(),
+                    RecyclerView.VERTICAL
+                )
             )
             adapter = dialFragmentAdapter
         }
     }
 
     private fun setupObservers() {
-        viewModel.callsSugested.observe(viewLifecycleOwner){
+        viewModel.callsSugested.observe(viewLifecycleOwner) {
             updateSugested()
         }
     }
