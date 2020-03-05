@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:id="@+id/mnuDial"
+        android:icon="@drawable/ic_dial_black_24dp"
+        android:title="@string/main_mnuDial"
+        app:showAsAction="ifRoom|withText"/>
+    <item
+        android:id="@+id/mnuRecent"
+        android:icon="@drawable/ic_recent_black_24dp"
+        android:title="@string/main_mnuRecent"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/mnuContacts"
+        android:icon="@drawable/ic_contacts_black_24dp"
+        android:title="@string/main_mnuContacts"
+        app:showAsAction="ifRoom|withText" />
 </menu>
