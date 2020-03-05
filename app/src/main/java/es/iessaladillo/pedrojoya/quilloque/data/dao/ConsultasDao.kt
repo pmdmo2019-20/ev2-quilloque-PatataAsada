@@ -14,7 +14,7 @@ interface ConsultasDao {
             "C.date AS date, C.time AS time, T.id AS contactId, T.name AS contactName \n" +
             "FROM Call AS C LEFT JOIN Contact AS T ON C.phoneNumber = T.phoneNumber \n" +
             "ORDER BY C.id DESC LIMIT :limit")
-    fun queryCalls():List<CallWithContact>
+    fun queryCalls(limit:Int):List<CallWithContact>
 
     @Query("SELECT name AS contactName, phoneNumber AS phoneNumber " +
             "FROM Contact " +
@@ -24,20 +24,20 @@ interface ConsultasDao {
             "FROM Call " +
             "WHERE phoneNumber like :phoneNumber " +
             "AND phoneNumber NOT IN (SELECT phoneNumber FROM Contact)")
-    fun querySuggestions(phoneNumber:String):List<Contact>
+    fun querySuggestions(phoneNumber:String):List<CallWithContact>
 
     @Insert
-    fun insertCall(call: Call):Boolean
+    fun insertCall(call: Call):Long
 
     @Insert
-    fun insertContact(contact: Contact):Boolean
+    fun insertContact(contact: Contact):Long
 
     @Delete
-    fun deleteCall(call: Call):Boolean
+    fun deleteCall(call: Call):Int
 
     @Delete
-    fun deleteContact(contact: Contact):Boolean
+    fun deleteContact(contact: Contact):Int
 
-    @Query("SELECT * FROM Contact WHERE name LIKE :name")
-    fun queryContacts(name:String?): List<Contact>
+    @Query("SELECT id, name, phoneNumber FROM Contact WHERE name LIKE :name")
+    fun queryContacts(name:String): List<Contact>
 }

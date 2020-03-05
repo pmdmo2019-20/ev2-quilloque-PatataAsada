@@ -21,7 +21,7 @@ class MainViewModel(private val application: Application, private val db: Consul
     val contacts: LiveData<List<Contact>> get() = _contacts
 
     private var _callsWithContacts: MutableLiveData<List<CallWithContact>> =
-        MutableLiveData(db.consultasDao.queryCalls())
+        MutableLiveData(db.consultasDao.queryCalls(10))
     val callsWithContacts: LiveData<List<CallWithContact>> get() = _callsWithContacts
 
     var contactCreatorHelper: Call? = null
@@ -36,7 +36,7 @@ class MainViewModel(private val application: Application, private val db: Consul
     }
 
     private fun updateCalls() {
-        _callsWithContacts.value = db.consultasDao.queryCalls()
+        _callsWithContacts.value = db.consultasDao.queryCalls(10)
     }
 
     fun createContact(contact: Contact) {
