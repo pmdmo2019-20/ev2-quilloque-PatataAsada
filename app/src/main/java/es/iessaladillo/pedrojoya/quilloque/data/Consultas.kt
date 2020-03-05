@@ -25,6 +25,7 @@ import es.iessaladillo.pedrojoya.quilloque.data.model.Contact
    "WHERE phoneNumber like :phoneNumber " +
    "AND phoneNumber NOT IN (SELECT phoneNumber FROM Contact)")
 */
+
 @Database(
     entities = [Call::class, Contact::class],
     version = 1

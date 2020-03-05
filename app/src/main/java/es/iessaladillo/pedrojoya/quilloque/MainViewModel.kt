@@ -26,6 +26,9 @@ class MainViewModel(private val application: Application, private val db: Consul
 
     var contactCreatorHelper: Call? = null
 
+    private var _myPositionInNavigation: MutableLiveData<String> = MutableLiveData(application.getString(R.string.dial_title))
+    val myPositionInNavigation:LiveData<String> get() = _myPositionInNavigation
+
     fun createCall(call: Call) {
         db.consultasDao.insertCall(call)
         updateCalls()
@@ -51,5 +54,9 @@ class MainViewModel(private val application: Application, private val db: Consul
 
     private fun updateContacts() {
         _contacts.value = db.consultasDao.queryContacts(search)
+    }
+
+    fun changeToolbarTitle(title:String){
+        _myPositionInNavigation.value = title
     }
 }

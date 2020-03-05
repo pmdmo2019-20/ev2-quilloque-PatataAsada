@@ -9,6 +9,11 @@ import android.widget.TextView
 import es.iessaladillo.pedrojoya.quilloque.R
 
 class DialFragment : Fragment() {
+
+    companion object {
+        fun newInstance() = DialFragment()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
