@@ -6,5 +6,6 @@
         android:id="@+id/mnuAddContact"
         android:icon="@drawable/ic_add_black_24dp"
         android:title="@string/contacts_mnuAddContact"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText"
+        android:visible="false"/>
 </menu>

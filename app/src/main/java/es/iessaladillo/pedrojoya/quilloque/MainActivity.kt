@@ -6,11 +6,11 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.get
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import es.iessaladillo.pedrojoya.quilloque.data.Consultas
-import es.iessaladillo.pedrojoya.quilloque.ui.dial.DialFragment
 import kotlinx.android.synthetic.main.main_activity.*
 
 class MainActivity : AppCompatActivity() {
@@ -22,17 +22,12 @@ class MainActivity : AppCompatActivity() {
         MainViewModelFactory(application, Consultas.getInstance(this))
     }
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        setFragment()
         setSupportActionBar(toolbar)
         setupBottomNavDrawer()
         setupObservers()
-    }
-
-    private fun setFragment() {
-        navCtrl.navigate(R.id.dialFragment)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -42,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupObservers() {
         viewmodel.myPositionInNavigation.observe(this) {
-            updateToolbar()
+            updateToolbar(false)
         }
     }
 
@@ -55,24 +50,39 @@ class MainActivity : AppCompatActivity() {
         }
 
     override fun onBackPressed() {
+        updateToolbar(true)
         super.onBackPressed()
     }
 
-    private fun updateToolbar() {
-        toolbar.title = viewmodel.myPositionInNavigation.value
-        when (viewmodel.myPositionInNavigation.value) {
-            getString(R.string.contact_creation_title) -> {
-                toolbar.menu.clear()
-                supportActionBar!!.setDisplayShowHomeEnabled(true)
-                supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+    override fun onSupportNavigateUp(): Boolean {
+        toolbar.menu.getItem(0).isVisible = true
+        onBackPressed()
+        return true
+    }
+
+
+    private fun updateToolbar(backPressed: Boolean) {
+        if (!backPressed) {
+            toolbar.title = viewmodel.myPositionInNavigation.value
+            when (viewmodel.myPositionInNavigation.value) {
+                getString(R.string.contact_creation_title) -> {
+                    toolbar.menu.getItem(0).isVisible = false
+                    supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+                    supportActionBar!!.setDisplayShowHomeEnabled(true)
+                }
+                getString(R.string.contacts_title) -> {
+                    onCreateOptionsMenu(toolbar.menu)
+                    toolbar.menu.getItem(0).isVisible = true
+                }
+                else -> {
+                    supportActionBar!!.setDisplayHomeAsUpEnabled(false)
+                    supportActionBar!!.setDisplayShowHomeEnabled(false)
+                    toolbar.menu.clear()
+                }
             }
-            getString(R.string.contacts_title) -> {
-                onCreateOptionsMenu(toolbar.menu)
-            }
-            else -> {
-                supportActionBar!!.setHomeButtonEnabled(false)
-                toolbar.menu.clear()
-            }
+        } else {
+            toolbar.title = viewmodel.arrayBackstackTitles[viewmodel.arrayBackstackTitles.size - 1]
+            viewmodel.arrayBackstackTitles.removeAt(viewmodel.arrayBackstackTitles.size - 1)
         }
     }
 
@@ -86,8 +96,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.mnuRecent -> {
                     navigateToRecent(); true
                 }
-                else -> {
+                R.id.mnuContacts -> {
                     navigateToContacts(); true
+                }
+                else -> {
+                    true
                 }
             }
         }
@@ -95,22 +108,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun navigateToRecent() {
         navCtrl.navigate(R.id.recentFragment)
+        viewmodel.arrayBackstackTitles.add(toolbar.title.toString())
         viewmodel.changeToolbarTitle(getString(R.string.recent_title))
     }
 
     private fun navigateToContacts() {
         navCtrl.navigate(R.id.contactsFragment)
+        viewmodel.arrayBackstackTitles.add(toolbar.title.toString())
         viewmodel.changeToolbarTitle(getString(R.string.contacts_title))
     }
 
     private fun navigateToDial() {
         navCtrl.navigate(R.id.dialFragment)
+        viewmodel.arrayBackstackTitles.add(toolbar.title.toString())
         viewmodel.changeToolbarTitle(getString(R.string.dial_title))
     }
 
     private fun navigateToCreateContact() {
         navCtrl.navigate(R.id.action_contactsFragment_to_contactCreationFragment)
+        viewmodel.arrayBackstackTitles.add(toolbar.title.toString())
         viewmodel.changeToolbarTitle(getString(R.string.contact_creation_title))
     }
-
 }
